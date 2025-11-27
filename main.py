@@ -1,5 +1,5 @@
 """FastAPI application for hybrid vector + graph database."""
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from typing import List
@@ -7,7 +7,9 @@ from pydantic import BaseModel
 from contextlib import asynccontextmanager
 from db.models import Edge, EdgeCreate, Node, NodeCreate
 from db import storage, search
+from db.ingest import ingest_text_file
 from pathlib import Path
+import os
 
 
 # ==================== Lifespan Management ====================
@@ -246,6 +248,77 @@ def hybrid_search_endpoint(payload: HybridSearchRequest):
     return {"results": results}
 
 
+# ==================== File Ingestion Endpoints ====================
+
+@app.post("/ingest/text-file", tags=["Ingestion"])
+async def ingest_text_file_endpoint(file: UploadFile = File(...)):
+    """
+    Upload and ingest a .txt file into the database.
+    
+    The file is split into chunks (paragraphs), each chunk becomes a node,
+    and nodes are linked in a sequential chain with edges.
+    
+    Args:
+        file: The uploaded text file
+        
+    Returns:
+        Dictionary with file_name, total_chunks, and node_ids
+        
+    Raises:
+        HTTPException: 400 if file is not a text file
+    """
+    # Validate file type
+    if not file.filename.endswith('.txt'):
+        raise HTTPException(
+            status_code=400,
+            detail="Only .txt files are supported"
+        )
+    
+    # Read file content
+    content = await file.read()
+    text = content.decode('utf-8')
+    
+    # Ingest the file
+    result = ingest_text_file(
+        filename=file.filename,
+        content=text,
+        split_method="paragraph"
+    )
+    
+    return result
+
+
+@app.post("/admin/clear", tags=["Admin"])
+def clear_database():
+    """
+    Clear all nodes and edges from the database and reset counters.
+    
+    WARNING: This deletes all data!
+    
+    Returns:
+        Status confirmation
+    """
+    # Clear all data
+    storage.nodes.clear()
+    storage.edges.clear()
+    
+    # Reset ID counters
+    from itertools import count
+    storage.node_id_counter = count(1)
+    storage.edge_id_counter = count(1)
+    
+    # Delete persistence file if it exists
+    data_dir = Path(__file__).parent / "data"
+    snapshot_file = data_dir / "storage.json"
+    if snapshot_file.exists():
+        os.remove(snapshot_file)
+    
+    return {
+        "status": "ok",
+        "message": "Database cleared successfully"
+    }
+
+
 # ==================== Root Endpoint ====================
 
 @app.get("/", tags=["Root"])
@@ -265,6 +338,8 @@ def read_root():
             "edges": "/edges",
             "vector_search": "/search/vector",
             "graph_search": "/search/graph",
-            "hybrid_search": "/search/hybrid"
+            "hybrid_search": "/search/hybrid",
+            "ingest": "/ingest/text-file",
+            "clear": "/admin/clear"
         }
     }

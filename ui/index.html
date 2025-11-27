@@ -23,70 +23,146 @@
             margin: 0 auto;
         }
 
-        .header {
-            text-align: center;
+        h1 {
             color: white;
+            text-align: center;
             margin-bottom: 30px;
-        }
-
-        .header h1 {
             font-size: 2.5em;
-            margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 968px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
+        .section {
             background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        .card h2 {
+        .section h2 {
             color: #667eea;
             margin-bottom: 20px;
-            font-size: 1.5em;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .form-group {
-            margin-bottom: 15px;
+        .section h2::before {
+            content: "📁";
+            font-size: 1.2em;
+        }
+
+        .section:nth-child(3) h2::before {
+            content: "🔍";
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: transform 0.2s;
+        }
+
+        .file-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .search-controls {
+            display: grid;
+            gap: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         label {
-            display: block;
-            margin-bottom: 5px;
             font-weight: 600;
             color: #333;
+            font-size: 0.95em;
         }
 
         input[type="text"],
         input[type="number"],
         select {
-            width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 8px;
+            font-size: 1em;
             transition: border-color 0.3s;
         }
 
@@ -97,426 +173,636 @@
             border-color: #667eea;
         }
 
-        .slider-container {
+        .search-mode {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .radio-label {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .radio-label:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        input[type="radio"]:checked + .radio-label {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        input[type="radio"] {
+            display: none;
+        }
+
+        .slider-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
 
         input[type="range"] {
-            flex: 1;
-            height: 6px;
-            border-radius: 3px;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
             background: #e0e0e0;
             outline: none;
+            -webkit-appearance: none;
         }
 
         input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
             appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #667eea;
             cursor: pointer;
         }
 
-        .weight-value {
-            min-width: 40px;
-            text-align: right;
-            font-weight: 600;
-            color: #667eea;
-        }
-
-        .button-group {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
             cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            border: none;
         }
 
-        .btn-primary {
+        .slider-value {
+            display: inline-block;
             background: #667eea;
             color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-secondary {
-            background: #48bb78;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #38a169;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(72, 187, 120, 0.3);
-        }
-
-        .btn-tertiary {
-            background: #ed8936;
-            color: white;
-        }
-
-        .btn-tertiary:hover {
-            background: #dd6b20;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(237, 137, 54, 0.3);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
+            padding: 4px 12px;
+            border-radius: 5px;
+            font-weight: 600;
+            margin-left: 10px;
         }
 
         .results {
-            grid-column: 1 / -1;
+            margin-top: 25px;
         }
 
         .result-item {
-            background: #f7fafc;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 10px;
+            background: #f8f9ff;
             border-left: 4px solid #667eea;
-            transition: transform 0.2s;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
         }
 
         .result-item:hover {
             transform: translateX(5px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
 
-        .node-id {
-            display: inline-block;
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .result-id {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .result-score {
             background: #667eea;
             color: white;
             padding: 4px 12px;
-            border-radius: 12px;
-            font-weight: 600;
-            margin-right: 10px;
-        }
-
-        .score {
-            display: inline-block;
-            background: #48bb78;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
             font-weight: 600;
         }
 
-        .node-text {
+        .result-text {
+            color: #555;
+            line-height: 1.6;
             margin-top: 8px;
-            color: #4a5568;
-            font-style: italic;
         }
 
-        .loading {
+        .no-results {
             text-align: center;
-            color: #667eea;
-            font-size: 1.2em;
-            padding: 20px;
-        }
-
-        .error {
-            background: #fed7d7;
-            color: #c53030;
-            padding: 15px;
-            border-radius: 6px;
-            border-left: 4px solid #c53030;
-        }
-
-        .success {
-            background: #c6f6d5;
-            color: #22543d;
-            padding: 15px;
-            border-radius: 6px;
-            border-left: 4px solid #22543d;
-        }
-
-        .empty-state {
-            text-align: center;
+            color: #999;
             padding: 40px;
-            color: #a0aec0;
+            font-size: 1.1em;
         }
 
-        .empty-state svg {
-            width: 64px;
-            height: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
+        .mode-params {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 8px;
+        }
+
+        .mode-params.active {
+            display: block;
         }
 
         .info-box {
-            background: #ebf8ff;
-            border: 1px solid #bee3f8;
-            border-radius: 6px;
+            background: #e7f3ff;
+            border-left: 4px solid #2196f3;
             padding: 12px;
-            margin-bottom: 15px;
-            color: #2c5282;
+            margin-top: 10px;
+            border-radius: 5px;
             font-size: 0.9em;
+            color: #0c5460;
         }
 
-        .info-box strong {
-            color: #2b6cb0;
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .slider-group {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🔍 Hybrid Vector + Graph Database</h1>
-            <p>Intelligent Search Combining Semantics & Structure</p>
+        <h1>🚀 Hybrid Vector + Graph Database</h1>
+
+        <!-- Upload Section -->
+        <div class="section">
+            <h2>Step 1: Upload Your Document</h2>
+            <div class="upload-area">
+                <input type="file" id="fileInput" accept=".txt">
+                <label for="fileInput" class="file-label">
+                    📄 Choose a .txt file
+                </label>
+                <p style="margin-top: 15px; color: #666;">
+                    <span id="fileName">No file selected</span>
+                </p>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" id="ingestBtn" disabled>
+                    ⚡ Ingest File
+                </button>
+                <button class="btn btn-clear" id="clearBtn">
+                    🗑️ Clear Database
+                </button>
+            </div>
+            <div class="status" id="uploadStatus"></div>
         </div>
 
-        <div class="main-content">
-            <!-- Search Configuration -->
-            <div class="card">
-                <h2>Search Configuration</h2>
-                
-                <div class="info-box">
-                    <strong>Tip:</strong> Load demo data first using <code>load_demo_data.py</code>
+        <!-- Search Section -->
+        <div class="section">
+            <h2>Step 2: Search Your Document</h2>
+            
+            <div class="search-controls">
+                <!-- Query Input -->
+                <div class="control-group">
+                    <label for="queryInput">Ask a question about your document:</label>
+                    <input type="text" id="queryInput" placeholder="e.g., What is machine learning?" />
                 </div>
 
-                <div class="form-group">
-                    <label for="queryText">Search Query</label>
-                    <input type="text" id="queryText" placeholder="e.g., artificial intelligence and neural networks" 
-                           value="machine learning and AI">
-                </div>
+                <!-- Search Mode Selection -->
+                <div class="control-group">
+                    <label>Search Mode:</label>
+                    <div class="search-mode">
+                        <input type="radio" name="searchMode" id="modeVector" value="vector" checked>
+                        <label for="modeVector" class="radio-label">
+                            🎯 Vector Search
+                        </label>
 
-                <div class="form-group">
-                    <label for="startId">Start Node ID</label>
-                    <input type="number" id="startId" placeholder="1" value="1" min="1">
-                </div>
+                        <input type="radio" name="searchMode" id="modeGraph" value="graph">
+                        <label for="modeGraph" class="radio-label">
+                            🕸️ Graph Traversal
+                        </label>
 
-                <div class="form-group">
-                    <label for="depth">Graph Depth</label>
-                    <input type="number" id="depth" placeholder="2" value="2" min="1" max="5">
-                </div>
-
-                <div class="form-group">
-                    <label for="topK">Number of Results</label>
-                    <input type="number" id="topK" placeholder="5" value="5" min="1" max="20">
-                </div>
-            </div>
-
-            <!-- Weights Configuration -->
-            <div class="card">
-                <h2>Search Weights</h2>
-
-                <div class="info-box">
-                    <strong>Balance:</strong> Adjust how much to prioritize semantic similarity vs. graph connections
-                </div>
-
-                <div class="form-group">
-                    <label for="vectorWeight">Vector Weight (Semantic Similarity)</label>
-                    <div class="slider-container">
-                        <input type="range" id="vectorWeight" min="0" max="1" step="0.1" value="0.7">
-                        <span class="weight-value" id="vectorWeightValue">0.7</span>
+                        <input type="radio" name="searchMode" id="modeHybrid" value="hybrid">
+                        <label for="modeHybrid" class="radio-label">
+                            ⚡ Hybrid Search
+                        </label>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="graphWeight">Graph Weight (Connectivity)</label>
-                    <div class="slider-container">
-                        <input type="range" id="graphWeight" min="0" max="1" step="0.1" value="0.3">
-                        <span class="weight-value" id="graphWeightValue">0.3</span>
+                <!-- Vector Mode Parameters (default) -->
+                <div class="mode-params active" id="paramsVector">
+                    <div class="control-group">
+                        <label for="topK">Number of Results (top_k):</label>
+                        <input type="number" id="topK" value="5" min="1" max="20" />
+                    </div>
+                    <div class="info-box">
+                        💡 Vector search finds semantically similar chunks based on meaning.
                     </div>
                 </div>
 
-                <div class="button-group">
-                    <button class="btn-primary" onclick="searchVector()">Vector Only</button>
-                    <button class="btn-secondary" onclick="searchGraph()">Graph Only</button>
-                    <button class="btn-tertiary" onclick="searchHybrid()">Hybrid Search</button>
-                </div>
-            </div>
-
-            <!-- Results -->
-            <div class="card results">
-                <h2>Search Results</h2>
-                <div id="resultsContainer">
-                    <div class="empty-state">
-                        <svg fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 9a2 2 0 114 0 2 2 0 01-4 0z"/>
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a4 4 0 00-3.446 6.032l-2.261 2.26a1 1 0 101.414 1.415l2.261-2.261A4 4 0 1011 5z" clip-rule="evenodd"/>
-                        </svg>
-                        <p>Run a search to see results</p>
+                <!-- Graph Mode Parameters -->
+                <div class="mode-params" id="paramsGraph">
+                    <div class="control-group">
+                        <label for="startId">Start Node ID:</label>
+                        <input type="number" id="startId" value="1" min="1" />
+                    </div>
+                    <div class="control-group">
+                        <label for="depth">Traversal Depth:</label>
+                        <input type="number" id="depth" value="2" min="1" max="5" />
+                    </div>
+                    <div class="info-box">
+                        💡 Graph traversal explores connected nodes starting from a specific node.
                     </div>
                 </div>
+
+                <!-- Hybrid Mode Parameters -->
+                <div class="mode-params" id="paramsHybrid">
+                    <div class="slider-group">
+                        <div class="control-group">
+                            <label>
+                                Vector Weight: 
+                                <span class="slider-value" id="vectorWeightValue">0.7</span>
+                            </label>
+                            <input type="range" id="vectorWeight" min="0" max="1" step="0.1" value="0.7" />
+                        </div>
+                        <div class="control-group">
+                            <label>
+                                Graph Weight: 
+                                <span class="slider-value" id="graphWeightValue">0.3</span>
+                            </label>
+                            <input type="range" id="graphWeight" min="0" max="1" step="0.1" value="0.3" />
+                        </div>
+                    </div>
+                    <div class="control-group" style="margin-top: 15px;">
+                        <label for="hybridStartId">Start Node ID:</label>
+                        <input type="number" id="hybridStartId" value="1" min="1" />
+                    </div>
+                    <div class="control-group">
+                        <label for="hybridDepth">Graph Depth:</label>
+                        <input type="number" id="hybridDepth" value="2" min="1" max="5" />
+                    </div>
+                    <div class="control-group">
+                        <label for="hybridTopK">Number of Results:</label>
+                        <input type="number" id="hybridTopK" value="5" min="1" max="20" />
+                    </div>
+                    <div class="info-box">
+                        💡 Hybrid search combines vector similarity with graph relationships for better results.
+                    </div>
+                </div>
+
+                <!-- Search Button -->
+                <button class="btn" id="searchBtn">
+                    🔍 Search
+                </button>
             </div>
+
+            <!-- Results Display -->
+            <div class="results" id="resultsContainer"></div>
         </div>
     </div>
 
     <script>
-        const API_BASE = 'http://127.0.0.1:8000';
+        // ==================== Global State ====================
+        let ingestedNodeIds = [];
+        let currentMode = 'vector';
 
-        // Update weight displays
-        document.getElementById('vectorWeight').addEventListener('input', (e) => {
-            document.getElementById('vectorWeightValue').textContent = e.target.value;
-        });
+        // ==================== DOM Elements ====================
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const ingestBtn = document.getElementById('ingestBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const searchBtn = document.getElementById('searchBtn');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const queryInput = document.getElementById('queryInput');
 
-        document.getElementById('graphWeight').addEventListener('input', (e) => {
-            document.getElementById('graphWeightValue').textContent = e.target.value;
-        });
+        // Mode parameters
+        const paramsVector = document.getElementById('paramsVector');
+        const paramsGraph = document.getElementById('paramsGraph');
+        const paramsHybrid = document.getElementById('paramsHybrid');
 
-        // Display loading state
-        function showLoading() {
-            document.getElementById('resultsContainer').innerHTML = '<div class="loading">Searching...</div>';
-        }
+        // Radio buttons
+        const modeRadios = document.querySelectorAll('input[name="searchMode"]');
 
-        // Display error
-        function showError(message) {
-            document.getElementById('resultsContainer').innerHTML = 
-                `<div class="error"><strong>Error:</strong> ${message}</div>`;
-        }
+        // Sliders
+        const vectorWeightSlider = document.getElementById('vectorWeight');
+        const graphWeightSlider = document.getElementById('graphWeight');
+        const vectorWeightValue = document.getElementById('vectorWeightValue');
+        const graphWeightValue = document.getElementById('graphWeightValue');
 
-        // Display success message
-        function showSuccess(message) {
-            document.getElementById('resultsContainer').innerHTML = 
-                `<div class="success">${message}</div>`;
-        }
+        // ==================== Event Listeners ====================
 
-        // Fetch node details
-        async function getNodeDetails(nodeId) {
-            try {
-                const response = await fetch(`${API_BASE}/nodes/${nodeId}`);
-                if (response.ok) {
-                    return await response.json();
-                }
-            } catch (error) {
-                console.error('Error fetching node:', error);
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                fileName.textContent = file.name;
+                ingestBtn.disabled = false;
+            } else {
+                fileName.textContent = 'No file selected';
+                ingestBtn.disabled = true;
             }
-            return null;
-        }
+        });
 
-        // Display results
-        async function displayResults(results, searchType) {
-            if (!results || results.length === 0) {
-                document.getElementById('resultsContainer').innerHTML = 
-                    '<div class="empty-state"><p>No results found</p></div>';
+        // Ingest button
+        ingestBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            ingestBtn.disabled = true;
+            ingestBtn.textContent = '⏳ Ingesting...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/ingest/text-file', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                ingestedNodeIds = data.node_ids;
+
+                // Update start_id fields with first node
+                if (ingestedNodeIds.length > 0) {
+                    document.getElementById('startId').value = ingestedNodeIds[0];
+                    document.getElementById('hybridStartId').value = ingestedNodeIds[0];
+                }
+
+                showStatus('success', 
+                    `✅ Success! File "${data.file_name}" ingested.<br>` +
+                    `📦 Created ${data.total_chunks} chunks (nodes).<br>` +
+                    `🔗 Created ${data.edge_count} edges.<br>` +
+                    `🆔 Node IDs: ${ingestedNodeIds.slice(0, 5).join(', ')}${ingestedNodeIds.length > 5 ? '...' : ''}`
+                );
+            } catch (error) {
+                showStatus('error', `❌ Error: ${error.message}`);
+            } finally {
+                ingestBtn.disabled = false;
+                ingestBtn.textContent = '⚡ Ingest File';
+            }
+        });
+
+        // Clear database button
+        clearBtn.addEventListener('click', async () => {
+            if (!confirm('⚠️ Are you sure you want to clear the entire database?')) {
                 return;
             }
 
-            let html = `<div class="success"><strong>${searchType} Search</strong> - Found ${results.length} results</div>`;
-
-            for (const [nodeId, score] of results) {
-                const node = await getNodeDetails(nodeId);
-                const nodeText = node ? node.text : 'Unable to load node details';
-                
-                html += `
-                    <div class="result-item">
-                        <div>
-                            <span class="node-id">Node ${nodeId}</span>
-                            <span class="score">Score: ${score.toFixed(4)}</span>
-                        </div>
-                        <div class="node-text">${nodeText}</div>
-                    </div>
-                `;
-            }
-
-            document.getElementById('resultsContainer').innerHTML = html;
-        }
-
-        // Vector search
-        async function searchVector() {
-            showLoading();
-            const queryText = document.getElementById('queryText').value;
-            const topK = parseInt(document.getElementById('topK').value);
-
             try {
-                const response = await fetch(`${API_BASE}/search/vector`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query_text: queryText, top_k: topK })
+                const response = await fetch('/admin/clear', {
+                    method: 'POST'
                 });
 
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                ingestedNodeIds = [];
+                resultsContainer.innerHTML = '';
+                fileInput.value = '';
+                fileName.textContent = 'No file selected';
+                ingestBtn.disabled = true;
                 
-                const data = await response.json();
-                await displayResults(data.results, 'Vector');
+                showStatus('success', '✅ Database cleared successfully!');
             } catch (error) {
-                showError(`Failed to perform vector search: ${error.message}`);
-            }
-        }
-
-        // Graph search
-        async function searchGraph() {
-            showLoading();
-            const startId = parseInt(document.getElementById('startId').value);
-            const depth = parseInt(document.getElementById('depth').value);
-
-            try {
-                const response = await fetch(`${API_BASE}/search/graph?start_id=${startId}&depth=${depth}`);
-                
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                
-                const data = await response.json();
-                const results = data.nodes.map(id => [id, 1.0]); // Graph search doesn't provide scores
-                await displayResults(results, 'Graph');
-            } catch (error) {
-                showError(`Failed to perform graph search: ${error.message}`);
-            }
-        }
-
-        // Hybrid search
-        async function searchHybrid() {
-            showLoading();
-            const queryText = document.getElementById('queryText').value;
-            const vectorWeight = parseFloat(document.getElementById('vectorWeight').value);
-            const graphWeight = parseFloat(document.getElementById('graphWeight').value);
-            const startId = parseInt(document.getElementById('startId').value);
-            const depth = parseInt(document.getElementById('depth').value);
-            const topK = parseInt(document.getElementById('topK').value);
-
-            try {
-                const response = await fetch(`${API_BASE}/search/hybrid`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        query_text: queryText,
-                        vector_weight: vectorWeight,
-                        graph_weight: graphWeight,
-                        start_id: startId,
-                        depth: depth,
-                        top_k: topK
-                    })
-                });
-
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                
-                const data = await response.json();
-                await displayResults(data.results, 'Hybrid');
-            } catch (error) {
-                showError(`Failed to perform hybrid search: ${error.message}`);
-            }
-        }
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'Enter') {
-                searchHybrid();
+                showStatus('error', `❌ Error: ${error.message}`);
             }
         });
 
-        // Auto-focus query input
-        document.getElementById('queryText').focus();
+        // Search mode change
+        modeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                currentMode = e.target.value;
+                
+                // Hide all parameter sections
+                paramsVector.classList.remove('active');
+                paramsGraph.classList.remove('active');
+                paramsHybrid.classList.remove('active');
+                
+                // Show relevant parameters
+                if (currentMode === 'vector') {
+                    paramsVector.classList.add('active');
+                } else if (currentMode === 'graph') {
+                    paramsGraph.classList.add('active');
+                } else if (currentMode === 'hybrid') {
+                    paramsHybrid.classList.add('active');
+                }
+            });
+        });
+
+        // Slider updates
+        vectorWeightSlider.addEventListener('input', (e) => {
+            vectorWeightValue.textContent = e.target.value;
+        });
+
+        graphWeightSlider.addEventListener('input', (e) => {
+            graphWeightValue.textContent = e.target.value;
+        });
+
+        // Search button
+        searchBtn.addEventListener('click', async () => {
+            const query = queryInput.value.trim();
+            
+            if (!query && currentMode !== 'graph') {
+                alert('⚠️ Please enter a search query!');
+                return;
+            }
+
+            searchBtn.disabled = true;
+            searchBtn.textContent = '⏳ Searching...';
+            resultsContainer.innerHTML = '<div style="text-align: center; padding: 20px;">⏳ Searching...</div>';
+
+            try {
+                let results;
+
+                if (currentMode === 'vector') {
+                    results = await performVectorSearch(query);
+                } else if (currentMode === 'graph') {
+                    results = await performGraphSearch();
+                } else if (currentMode === 'hybrid') {
+                    results = await performHybridSearch(query);
+                }
+
+                displayResults(results, currentMode);
+            } catch (error) {
+                resultsContainer.innerHTML = `<div class="no-results">❌ Error: ${error.message}</div>`;
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔍 Search';
+            }
+        });
+
+        // ==================== Search Functions ====================
+
+        async function performVectorSearch(query) {
+            const topK = parseInt(document.getElementById('topK').value);
+            
+            const response = await fetch('/search/vector', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query_text: query,
+                    top_k: topK
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.results; // Array of [node_id, score]
+        }
+
+        async function performGraphSearch() {
+            const startId = parseInt(document.getElementById('startId').value);
+            const depth = parseInt(document.getElementById('depth').value);
+            
+            const response = await fetch(`/search/graph?start_id=${startId}&depth=${depth}`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.nodes; // Array of node_ids
+        }
+
+        async function performHybridSearch(query) {
+            const vectorWeight = parseFloat(document.getElementById('vectorWeight').value);
+            const graphWeight = parseFloat(document.getElementById('graphWeight').value);
+            const startId = parseInt(document.getElementById('hybridStartId').value);
+            const depth = parseInt(document.getElementById('hybridDepth').value);
+            const topK = parseInt(document.getElementById('hybridTopK').value);
+            
+            const response = await fetch('/search/hybrid', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query_text: query,
+                    vector_weight: vectorWeight,
+                    graph_weight: graphWeight,
+                    start_id: startId,
+                    depth: depth,
+                    top_k: topK
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.results; // Array of [node_id, score]
+        }
+
+        // ==================== Display Functions ====================
+
+        async function displayResults(results, mode) {
+            if (!results || results.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-results">No results found 😕</div>';
+                return;
+            }
+
+            let html = `<h3 style="color: #667eea; margin-bottom: 15px;">
+                ${mode === 'vector' ? '🎯 Vector Search' : mode === 'graph' ? '🕸️ Graph Traversal' : '⚡ Hybrid Search'} Results
+            </h3>`;
+
+            // Graph mode returns just node IDs
+            if (mode === 'graph') {
+                for (const nodeId of results) {
+                    const node = await fetchNode(nodeId);
+                    if (node) {
+                        html += createResultCard(node, null);
+                    }
+                }
+            } else {
+                // Vector and Hybrid return [node_id, score] tuples
+                for (const [nodeId, score] of results) {
+                    const node = await fetchNode(nodeId);
+                    if (node) {
+                        html += createResultCard(node, score);
+                    }
+                }
+            }
+
+            resultsContainer.innerHTML = html;
+        }
+
+        async function fetchNode(nodeId) {
+            try {
+                const response = await fetch(`/nodes/${nodeId}`);
+                if (!response.ok) return null;
+                return await response.json();
+            } catch (error) {
+                console.error(`Error fetching node ${nodeId}:`, error);
+                return null;
+            }
+        }
+
+        function createResultCard(node, score) {
+            const textPreview = node.text.length > 200 
+                ? node.text.substring(0, 200) + '...' 
+                : node.text;
+
+            const scoreHtml = score !== null 
+                ? `<span class="result-score">Score: ${score.toFixed(3)}</span>` 
+                : '';
+
+            const chunkInfo = node.metadata.chunk_index !== undefined
+                ? `<div style="font-size: 0.85em; color: #888; margin-top: 5px;">
+                     📄 ${node.metadata.file_name} | Chunk #${node.metadata.chunk_index}
+                   </div>`
+                : '';
+
+            return `
+                <div class="result-item">
+                    <div class="result-header">
+                        <span class="result-id">Node ID: ${node.id}</span>
+                        ${scoreHtml}
+                    </div>
+                    <div class="result-text">${textPreview}</div>
+                    ${chunkInfo}
+                </div>
+            `;
+        }
+
+        function showStatus(type, message) {
+            uploadStatus.className = `status ${type}`;
+            uploadStatus.innerHTML = message;
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                uploadStatus.style.display = 'none';
+            }, 10000);
+        }
+
+        // ==================== Initialize ====================
+        
+        // Sync radio button checked state with labels
+        modeRadios.forEach(radio => {
+            const label = document.querySelector(`label[for="${radio.id}"]`);
+            if (radio.checked) {
+                label.style.borderColor = '#667eea';
+                label.style.background = '#667eea';
+                label.style.color = 'white';
+            }
+        });
     </script>
 </body>
 </html>
