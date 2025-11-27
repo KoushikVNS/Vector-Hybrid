@@ -1,6 +1,6 @@
 """Graph traversal and search functionality."""
 from collections import deque
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 import random
 import numpy as np
 from db.storage import get_all_edges, get_all_nodes
@@ -242,3 +242,126 @@ def hybrid_search(
     
     # 6) Return top_k
     return combined_scores[:top_k]
+
+
+# ==================== Enhanced Search with Edges ====================
+
+def get_edges_between_nodes(node_ids: List[int]) -> List[Dict[str, Any]]:
+    """
+    Get all edges that connect nodes in the given list.
+    
+    Args:
+        node_ids: List of node IDs to find edges between
+        
+    Returns:
+        List of edge dictionaries with source, target, type, and weight
+    """
+    node_set = set(node_ids)
+    edges = get_all_edges()
+    
+    result_edges = []
+    for edge_id, edge in edges.items():
+        if edge.source in node_set and edge.target in node_set:
+            result_edges.append({
+                "id": edge_id,
+                "source": edge.source,
+                "target": edge.target,
+                "type": edge.type,
+                "weight": edge.weight
+            })
+    
+    return result_edges
+
+
+def vector_search_with_edges(query_text: str, top_k: int = 5) -> Dict[str, Any]:
+    """
+    Perform vector search and return nodes with connecting edges.
+    
+    Args:
+        query_text: The search query text
+        top_k: Number of top results to return
+        
+    Returns:
+        Dictionary with 'nodes' (list of node_id, score tuples) and 'edges' (list of edge dicts)
+    """
+    # Get vector search results
+    results = vector_search(query_text, top_k)
+    
+    # Get node IDs
+    node_ids = [node_id for node_id, score in results]
+    
+    # Get edges between these nodes
+    edges = get_edges_between_nodes(node_ids)
+    
+    return {
+        "nodes": results,
+        "edges": edges,
+        "node_count": len(results),
+        "edge_count": len(edges)
+    }
+
+
+def graph_traversal_with_edges(start_id: int, depth: int = 1) -> Dict[str, Any]:
+    """
+    Perform graph traversal and return nodes with connecting edges.
+    
+    Args:
+        start_id: The ID of the starting node
+        depth: Maximum depth to traverse
+        
+    Returns:
+        Dictionary with 'nodes' (list of node IDs) and 'edges' (list of edge dicts)
+    """
+    # Get traversal results
+    node_ids = graph_traversal(start_id, depth)
+    
+    # Get edges between these nodes
+    edges = get_edges_between_nodes(node_ids)
+    
+    return {
+        "nodes": node_ids,
+        "edges": edges,
+        "node_count": len(node_ids),
+        "edge_count": len(edges)
+    }
+
+
+def hybrid_search_with_edges(
+    query_text: str,
+    vector_weight: float,
+    graph_weight: float,
+    start_id: int,
+    depth: int,
+    top_k: int = 5
+) -> Dict[str, Any]:
+    """
+    Perform hybrid search and return nodes with connecting edges.
+    
+    Args:
+        query_text: The search query text
+        vector_weight: Weight for vector similarity score
+        graph_weight: Weight for graph proximity score
+        start_id: Starting node ID for graph traversal
+        depth: Maximum graph traversal depth
+        top_k: Number of top results to return
+        
+    Returns:
+        Dictionary with 'nodes' (list of node_id, score tuples) and 'edges' (list of edge dicts)
+    """
+    # Get hybrid search results
+    results = hybrid_search(query_text, vector_weight, graph_weight, start_id, depth, top_k)
+    
+    # Get node IDs
+    node_ids = [node_id for node_id, score in results]
+    
+    # Get edges between these nodes
+    edges = get_edges_between_nodes(node_ids)
+    
+    return {
+        "nodes": results,
+        "edges": edges,
+        "node_count": len(results),
+        "edge_count": len(edges),
+        "vector_weight": vector_weight,
+        "graph_weight": graph_weight
+    }

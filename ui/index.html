@@ -652,7 +652,7 @@
         async function performVectorSearch(query) {
             const topK = parseInt(document.getElementById('topK').value);
             
-            const response = await fetch('/search/vector', {
+            const response = await fetch('/search/vector/detailed', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -666,21 +666,21 @@
             }
 
             const data = await response.json();
-            return data.results; // Array of [node_id, score]
+            return data; // Returns {nodes, edges, node_count, edge_count}
         }
 
         async function performGraphSearch() {
             const startId = parseInt(document.getElementById('startId').value);
             const depth = parseInt(document.getElementById('depth').value);
             
-            const response = await fetch(`/search/graph?start_id=${startId}&depth=${depth}`);
+            const response = await fetch(`/search/graph/detailed?start_id=${startId}&depth=${depth}`);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
-            return data.nodes; // Array of node_ids
+            return data; // Returns {nodes, edges, node_count, edge_count}
         }
 
         async function performHybridSearch(query) {
@@ -690,7 +690,7 @@
             const depth = parseInt(document.getElementById('hybridDepth').value);
             const topK = parseInt(document.getElementById('hybridTopK').value);
             
-            const response = await fetch('/search/hybrid', {
+            const response = await fetch('/search/hybrid/detailed', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -708,24 +708,42 @@
             }
 
             const data = await response.json();
-            return data.results; // Array of [node_id, score]
+            return data; // Returns {nodes, edges, node_count, edge_count}
         }
 
         // ==================== Display Functions ====================
 
         async function displayResults(results, mode) {
-            if (!results || results.length === 0) {
+            // Check if results is the new format with edges
+            const hasEdges = results && results.edges !== undefined;
+            const nodes = hasEdges ? results.nodes : results;
+            const edges = hasEdges ? results.edges : [];
+            
+            if (!nodes || nodes.length === 0) {
                 resultsContainer.innerHTML = '<div class="no-results">No results found 😕</div>';
                 return;
             }
 
+            // Summary header
             let html = `<h3 style="color: #667eea; margin-bottom: 15px;">
                 ${mode === 'vector' ? '🎯 Vector Search' : mode === 'graph' ? '🕸️ Graph Traversal' : '⚡ Hybrid Search'} Results
             </h3>`;
+            
+            // Show statistics if we have edge data
+            if (hasEdges) {
+                html += `<div style="background: #e7f3ff; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                    <strong>📊 Results Summary:</strong><br>
+                    📦 Found ${results.node_count} nodes<br>
+                    🔗 Found ${results.edge_count} connecting edges
+                </div>`;
+            }
 
+            // Display nodes
+            html += `<h4 style="color: #667eea; margin: 20px 0 10px 0;">📦 Connected Nodes:</h4>`;
+            
             // Graph mode returns just node IDs
             if (mode === 'graph') {
-                for (const nodeId of results) {
+                for (const nodeId of nodes) {
                     const node = await fetchNode(nodeId);
                     if (node) {
                         html += createResultCard(node, null);
@@ -733,12 +751,22 @@
                 }
             } else {
                 // Vector and Hybrid return [node_id, score] tuples
-                for (const [nodeId, score] of results) {
+                for (const [nodeId, score] of nodes) {
                     const node = await fetchNode(nodeId);
                     if (node) {
                         html += createResultCard(node, score);
                     }
                 }
+            }
+            
+            // Display edges if available
+            if (hasEdges && edges.length > 0) {
+                html += `<h4 style="color: #667eea; margin: 30px 0 10px 0;">🔗 Relationships (Edges):</h4>`;
+                html += createEdgesDisplay(edges);
+            } else if (hasEdges) {
+                html += `<div style="padding: 20px; text-align: center; color: #999; font-style: italic;">
+                    No edges found between these nodes
+                </div>`;
             }
 
             resultsContainer.innerHTML = html;
@@ -780,6 +808,39 @@
                     ${chunkInfo}
                 </div>
             `;
+        }
+        
+        function createEdgesDisplay(edges) {
+            if (!edges || edges.length === 0) {
+                return '';
+            }
+            
+            let html = '<div style="display: grid; gap: 10px;">';
+            
+            edges.forEach(edge => {
+                html += `
+                    <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 12px; border-radius: 5px;">
+                        <div style="display: flex; align-items: center; gap: 10px; font-weight: 600; color: #e65100;">
+                            <span>🔗 Edge ID: ${edge.id}</span>
+                            <span style="font-size: 0.85em; background: #ff9800; color: white; padding: 2px 8px; border-radius: 3px;">
+                                ${edge.type}
+                            </span>
+                        </div>
+                        <div style="margin-top: 8px; font-size: 0.95em; color: #666;">
+                            <strong>Connection:</strong> 
+                            Node <span style="color: #667eea; font-weight: 700;">${edge.source}</span>
+                            →
+                            Node <span style="color: #667eea; font-weight: 700;">${edge.target}</span>
+                            <span style="margin-left: 15px;">
+                                <strong>Weight:</strong> ${edge.weight.toFixed(2)}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            return html;
         }
 
         function showStatus(type, message) {

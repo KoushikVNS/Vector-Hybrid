@@ -76,7 +76,7 @@ def ingest_text_file(
             text=chunk_text,
             metadata={
                 "file_name": filename,
-                "chunk_index": idx,
+                "chunk_index": str(idx),  # Convert to string for Pydantic
                 "source": "file_upload"
             },
             embedding=embedding

@@ -248,6 +248,64 @@ def hybrid_search_endpoint(payload: HybridSearchRequest):
     return {"results": results}
 
 
+# ==================== Enhanced Search Endpoints with Edges ====================
+
+@app.post("/search/vector/detailed", tags=["Search"])
+def vector_search_detailed_endpoint(payload: VectorSearchRequest):
+    """
+    Perform vector similarity search and return nodes with connecting edges.
+    
+    Args:
+        payload: Search request with query text and top_k parameter
+        
+    Returns:
+        Dictionary with 'nodes', 'edges', 'node_count', and 'edge_count'
+    """
+    result = search.vector_search_with_edges(
+        query_text=payload.query_text,
+        top_k=payload.top_k
+    )
+    return result
+
+
+@app.get("/search/graph/detailed", tags=["Search"])
+def graph_search_detailed(start_id: int, depth: int = 1):
+    """
+    Perform graph traversal and return nodes with connecting edges.
+    
+    Args:
+        start_id: The ID of the starting node
+        depth: Maximum depth to traverse (default: 1)
+        
+    Returns:
+        Dictionary with 'nodes', 'edges', 'node_count', and 'edge_count'
+    """
+    result = search.graph_traversal_with_edges(start_id, depth)
+    return result
+
+
+@app.post("/search/hybrid/detailed", tags=["Search"])
+def hybrid_search_detailed_endpoint(payload: HybridSearchRequest):
+    """
+    Perform hybrid search and return nodes with connecting edges.
+    
+    Args:
+        payload: Search request with query text, weights, start node, depth, and top_k
+        
+    Returns:
+        Dictionary with 'nodes', 'edges', 'node_count', 'edge_count', and weights used
+    """
+    result = search.hybrid_search_with_edges(
+        query_text=payload.query_text,
+        vector_weight=payload.vector_weight,
+        graph_weight=payload.graph_weight,
+        start_id=payload.start_id,
+        depth=payload.depth,
+        top_k=payload.top_k
+    )
+    return result
+
+
 # ==================== File Ingestion Endpoints ====================
 
 @app.post("/ingest/text-file", tags=["Ingestion"])
