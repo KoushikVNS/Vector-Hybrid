@@ -366,9 +366,75 @@
             <div class="status" id="uploadStatus"></div>
         </div>
 
+        <!-- CRUD Operations Section -->
+        <div class="section">
+            <h2>📝 CRUD Operations (Create, Read, Update, Delete)</h2>
+            
+            <!-- Node Operations -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Vector Operations (Nodes)</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div class="control-group">
+                        <label for="nodeText">Node Text:</label>
+                        <input type="text" id="nodeText" placeholder="Enter text content" />
+                    </div>
+                    <div class="control-group">
+                        <label for="nodeId">Node ID (for Read/Update/Delete):</label>
+                        <input type="number" id="nodeId" placeholder="Enter node ID" min="1" />
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn" onclick="createNode()" style="background: #10b981;">➕ Create Node</button>
+                    <button class="btn" onclick="readNode()" style="background: #3b82f6;">📖 Read Node</button>
+                    <button class="btn" onclick="updateNode()" style="background: #f59e0b;">✏️ Update Node</button>
+                    <button class="btn" onclick="deleteNode()" style="background: #ef4444;">🗑️ Delete Node</button>
+                    <button class="btn" onclick="listAllNodes()" style="background: #8b5cf6;">📋 List All</button>
+                </div>
+            </div>
+
+            <!-- Edge Operations -->
+            <div>
+                <h3 style="color: #764ba2; margin-bottom: 15px;">Graph Operations (Edges)</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div class="control-group">
+                        <label for="edgeSource">Source Node ID:</label>
+                        <input type="number" id="edgeSource" placeholder="From" min="1" />
+                    </div>
+                    <div class="control-group">
+                        <label for="edgeTarget">Target Node ID:</label>
+                        <input type="number" id="edgeTarget" placeholder="To" min="1" />
+                    </div>
+                    <div class="control-group">
+                        <label for="edgeType">Edge Type:</label>
+                        <input type="text" id="edgeType" placeholder="e.g., related_to" value="related_to" />
+                    </div>
+                    <div class="control-group">
+                        <label for="edgeWeight">Weight:</label>
+                        <input type="number" id="edgeWeight" placeholder="0.0 - 1.0" step="0.1" value="1.0" min="0" max="1" />
+                    </div>
+                    <div class="control-group">
+                        <label for="edgeId">Edge ID (for Delete):</label>
+                        <input type="number" id="edgeId" placeholder="Edge ID" min="1" />
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn" onclick="createEdge()" style="background: #10b981;">➕ Create Edge</button>
+                    <button class="btn" onclick="readEdge()" style="background: #3b82f6;">📖 Read Edge</button>
+                    <button class="btn" onclick="deleteEdge()" style="background: #ef4444;">🗑️ Delete Edge</button>
+                    <button class="btn" onclick="listAllEdges()" style="background: #8b5cf6;">📋 List All</button>
+                </div>
+            </div>
+
+            <div class="status" id="crudStatus"></div>
+        </div>
+
         <!-- Search Section -->
         <div class="section">
-            <h2>Step 2: Search Your Document</h2>
+            <h2>Step 3: Search Your Document</h2>
             
             <div class="search-controls">
                 <!-- Query Input -->
@@ -851,6 +917,250 @@
             setTimeout(() => {
                 uploadStatus.style.display = 'none';
             }, 10000);
+        }
+
+        function showCrudStatus(type, message) {
+            const crudStatus = document.getElementById('crudStatus');
+            crudStatus.className = `status ${type}`;
+            crudStatus.innerHTML = message;
+            crudStatus.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                crudStatus.style.display = 'none';
+            }, 5000);
+        }
+
+        // ==================== CRUD Operations ====================
+
+        // Node CRUD
+        async function createNode() {
+            const text = document.getElementById('nodeText').value.trim();
+            if (!text) {
+                alert('⚠️ Please enter text for the node!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/nodes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        metadata: { source: 'manual_crud' }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to create node');
+                
+                const node = await response.json();
+                showCrudStatus('success', `✅ Node created successfully! ID: ${node.id}`);
+                document.getElementById('nodeText').value = '';
+            } catch (error) {
+                showCrudStatus('error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function readNode() {
+            const nodeId = document.getElementById('nodeId').value;
+            if (!nodeId) {
+                alert('⚠️ Please enter a node ID!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/nodes/${nodeId}`);
+                if (!response.ok) throw new Error('Node not found');
+                
+                const node = await response.json();
+                showCrudStatus('success', `
+                    ✅ <strong>Node ${node.id}:</strong><br>
+                    📝 Text: "${node.text}"<br>
+                    📊 Metadata: ${JSON.stringify(node.metadata)}<br>
+                    🔢 Embedding dimension: ${node.embedding.length}
+                `);
+            } catch (error) {
+                showCrudStatus('error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function updateNode() {
+            const nodeId = document.getElementById('nodeId').value;
+            const text = document.getElementById('nodeText').value.trim();
+            
+            if (!nodeId) {
+                alert('⚠️ Please enter a node ID!');
+                return;
+            }
+            if (!text) {
+                alert('⚠️ Please enter new text!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/nodes/${nodeId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        metadata: { source: 'manual_crud', updated: true }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to update node');
+                
+                const node = await response.json();
+                showCrudStatus('success', `✅ Node ${node.id} updated successfully!`);
+                document.getElementById('nodeText').value = '';
+            } catch (error) {
+                showCrudStatus('error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function deleteNode() {
+            const nodeId = document.getElementById('nodeId').value;
+            if (!nodeId) {
+                alert('⚠️ Please enter a node ID!');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete node ${nodeId}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/nodes/${nodeId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error('Failed to delete node');
+                
+                showCrudStatus('success', `✅ Node ${nodeId} deleted successfully!`);
+                document.getElementById('nodeId').value = '';
+            } catch (error) {
+                showCrudStatus('error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function listAllNodes() {
+            try {
+                const response = await fetch('/nodes');
+                if (!response.ok) throw new Error('Failed to fetch nodes');
+                
+                const nodes = await response.json();
+                let html = `✅ <strong>Total Nodes: ${nodes.length}</strong><br><br>`;
+                
+                nodes.forEach(node => {
+                    html += `📦 <strong>Node ${node.id}:</strong> "${node.text.substring(0, 80)}${node.text.length > 80 ? '...' : ''}"<br>`;
+                });
+                
+                showCrudStatus('success', html);
+            } catch (error) {
+                showCrudStatus('error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        // Edge CRUD
+        async function createEdge() {
+            const source = document.getElementById('edgeSource').value;
+            const target = document.getElementById('edgeTarget').value;
+            const type = document.getElementById('edgeType').value.trim();
+            const weight = parseFloat(document.getElementById('edgeWeight').value);
+
+            if (!source || !target) {
+                alert('⚠️ Please enter source and target node IDs!');
+                return;
+            }
+            if (!type) {
+                alert('⚠️ Please enter edge type!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/edges', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        source: parseInt(source),
+                        target: parseInt(target),
+                        type: type,
+                        weight: weight
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to create edge');
+                
+                const edge = await response.json();
+                showCrudStatus('success', `✅ Edge created! ID: ${edge.id} (${edge.source} → ${edge.target})`);
+            } catch (error) {
+                showCrudStatus('error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function readEdge() {
+            const edgeId = document.getElementById('edgeId').value;
+            if (!edgeId) {
+                alert('⚠️ Please enter an edge ID!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/edges/${edgeId}`);
+                if (!response.ok) throw new Error('Edge not found');
+                
+                const edge = await response.json();
+                showCrudStatus('success', `
+                    ✅ <strong>Edge ${edge.id}:</strong><br>
+                    🔗 ${edge.source} → ${edge.target}<br>
+                    🏷️ Type: ${edge.type}<br>
+                    ⚖️ Weight: ${edge.weight}
+                `);
+            } catch (error) {
+                showCrudStatus('error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function deleteEdge() {
+            const edgeId = document.getElementById('edgeId').value;
+            if (!edgeId) {
+                alert('⚠️ Please enter an edge ID!');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete edge ${edgeId}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/edges/${edgeId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error('Failed to delete edge');
+                
+                showCrudStatus('success', `✅ Edge ${edgeId} deleted successfully!`);
+                document.getElementById('edgeId').value = '';
+            } catch (error) {
+                showCrudStatus('error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function listAllEdges() {
+            try {
+                const response = await fetch('/edges');
+                if (!response.ok) throw new Error('Failed to fetch edges');
+                
+                const edges = await response.json();
+                let html = `✅ <strong>Total Edges: ${edges.length}</strong><br><br>`;
+                
+                edges.forEach(edge => {
+                    html += `🔗 <strong>Edge ${edge.id}:</strong> ${edge.source} → ${edge.target} (${edge.type}, weight: ${edge.weight})<br>`;
+                });
+                
+                showCrudStatus('success', html);
+            } catch (error) {
+                showCrudStatus('error', `❌ Error: ${error.message}`);
+            }
         }
 
         // ==================== Initialize ====================
