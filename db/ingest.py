@@ -82,7 +82,7 @@ def ingest_text_file(
             embedding=embedding
         )
         
-        node = create_node(node_data)
+        node = create_node(node_data, embedding)
         node_ids.append(node.id)
     
     # Create edges to link chunks in a chain (chunk i → chunk i+1)

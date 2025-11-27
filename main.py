@@ -356,14 +356,15 @@ def clear_database():
     Returns:
         Status confirmation
     """
-    # Clear all data
-    storage.nodes.clear()
-    storage.edges.clear()
+    # Clear all data using the storage module's functions
+    # Access the internal storage to clear it
+    storage._nodes.clear()
+    storage._edges.clear()
     
     # Reset ID counters
     from itertools import count
-    storage.node_id_counter = count(1)
-    storage.edge_id_counter = count(1)
+    storage._node_id_counter = count(1)
+    storage._edge_id_counter = count(1)
     
     # Delete persistence file if it exists
     data_dir = Path(__file__).parent / "data"

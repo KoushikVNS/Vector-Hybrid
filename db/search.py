@@ -1,38 +1,90 @@
 """Graph traversal and search functionality."""
 from collections import deque
 from typing import List, Tuple, Dict, Any
-import random
 import numpy as np
-from db.storage import get_all_edges, get_all_nodes
+import random
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+from db.storage import get_all_nodes, get_all_edges
 
 
-# Vector dimension constant
-VECTOR_DIM = 128
+# Global TF-IDF vectorizer and fitted status
+_vectorizer = None
+_is_fitted = False
+_embedding_dim = 384
+
+print("✓ Using TF-IDF embeddings (no PyTorch required)")
+
+
+def _get_vectorizer():
+    """Get or create the TF-IDF vectorizer."""
+    global _vectorizer
+    if _vectorizer is None:
+        # Create vectorizer with fixed dimension
+        _vectorizer = TfidfVectorizer(
+            max_features=_embedding_dim,
+            ngram_range=(1, 2),
+            min_df=1,
+            stop_words='english'
+        )
+    return _vectorizer
+
+
+def _fit_vectorizer_if_needed():
+    """Fit the vectorizer on all existing node texts."""
+    global _is_fitted
+    if not _is_fitted:
+        nodes = get_all_nodes()
+        if nodes:
+            texts = [node.text for node in nodes.values()]
+            if texts:
+                vectorizer = _get_vectorizer()
+                try:
+                    vectorizer.fit(texts)
+                    _is_fitted = True
+                    print(f"✓ TF-IDF fitted on {len(texts)} documents ({_embedding_dim}-dim)")
+                except:
+                    pass
 
 
 # ==================== Embedding Generation ====================
 
 def generate_embedding(text: str) -> List[float]:
     """
-    Generate a deterministic pseudo-random embedding vector for text.
+    Generate a TF-IDF based embedding vector for text.
     
-    Uses hash-based seeding to ensure the same text always produces
-    the same embedding across runs.
+    Creates 384-dimensional embeddings using TF-IDF features.
+    No PyTorch or external models required - pure Python/NumPy.
     
     Args:
         text: The text to generate an embedding for
         
     Returns:
-        A list of VECTOR_DIM floats in range [0, 1)
+        A list of 384 normalized floats representing the embedding
     """
-    # Seed the random generator with hash of text for determinism
+    try:
+        _fit_vectorizer_if_needed()
+        vectorizer = _get_vectorizer()
+        
+        if _is_fitted:
+            # Transform text to TF-IDF vector
+            vector = vectorizer.transform([text]).toarray()[0]
+            
+            # Normalize
+            norm = np.linalg.norm(vector)
+            if norm > 0:
+                vector = vector / norm
+            
+            return vector.tolist()
+    except Exception as e:
+        print(f"⚠ TF-IDF error: {e}, using fallback")
+    
+    # Fallback to deterministic random embeddings
     seed = hash(text) % (2**32)
     rng = random.Random(seed)
-    
-    # Generate VECTOR_DIM random floats
-    embedding = [rng.random() for _ in range(VECTOR_DIM)]
-    
-    return embedding
+    embedding = [rng.random() for _ in range(_embedding_dim)]
+    norm = sum(x*x for x in embedding) ** 0.5
+    return [x / norm for x in embedding]
 
 
 # ==================== Vector Similarity ====================
